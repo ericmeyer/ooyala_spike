@@ -42,6 +42,9 @@ GEM
     execjs (1.2.9)
       multi_json (~> 1.0)
     hike (1.2.1)
+    httmultiparty (0.3.6)
+      httparty (>= 0.7.3)
+      multipart-post
     httparty (0.8.1)
       multi_json
       multi_xml
@@ -57,6 +60,7 @@ GEM
     mime-types (1.17.2)
     multi_json (1.0.3)
     multi_xml (0.4.1)
+    multipart-post (1.1.4)
     polyglot (0.3.3)
     rack (1.3.5)
     rack-cache (1.1)
@@ -111,7 +115,7 @@ PLATFORMS
 
 DEPENDENCIES
   coffee-rails (~> 3.1.1)
-  httparty
+  httmultiparty
   jquery-rails
   json
   rails (= 3.1.3)

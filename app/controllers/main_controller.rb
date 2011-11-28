@@ -17,6 +17,7 @@ module OoyalaApi
 end
 class OoyalaClient
   include OoyalaApi
+  include HTTMultiParty
 end
 class MainController < ApplicationController
   def index
@@ -25,7 +26,7 @@ class MainController < ApplicationController
     @ooyala = OoyalaClient.new
     @sig = @ooyala.generate_signature(API_SECRET, "GET", path, query_params, nil)
     
-    @response = HTTParty.get("http://api.ooyala.com#{path}", :query => query_params.merge("signature" => @sig))
+    @response = OoyalaClient.get("http://api.ooyala.com#{path}", :query => query_params.merge("signature" => @sig))
   end
   
   def create
@@ -44,17 +45,16 @@ class MainController < ApplicationController
     @ooyala = OoyalaClient.new
     @sig = @ooyala.generate_signature(API_SECRET, "POST", path, query_params, body.to_json)
     
-    logger.info "****************************: #{params[:video].size}"
-    @post_response = HTTParty.post("http://api.ooyala.com#{path}", :query => query_params.merge("signature" => @sig), :body => body.to_json, :options => { headers => { 'ContentType' => 'application/json' } })
-
+    @post_response = OoyalaClient.post("http://api.ooyala.com#{path}", :query => query_params.merge("signature" => @sig), :body => body.to_json, :options => { headers => { 'ContentType' => 'application/json' } })
+    
     get_upload_url_path = "/v2/assets/#{@post_response["embed_code"]}/uploading_urls"
     @ooyala = OoyalaClient.new
     get_sig = @ooyala.generate_signature(API_SECRET, "GET", get_upload_url_path, query_params, nil)
-    @get_response = HTTParty.get("http://api.ooyala.com#{get_upload_url_path}", :query => query_params.merge("signature" => get_sig))
+    @get_response = OoyalaClient.get("http://api.ooyala.com#{get_upload_url_path}", :query => query_params.merge("signature" => get_sig))
     
     upload_url = @get_response.parsed_response.first
     
-    @put_response = HTTParty.put(upload_url, :query => {}, :body => params[:video].read)
+    @put_response = OoyalaClient.put(upload_url, :body => params[:video].tempfile)
   end
   
   def expires

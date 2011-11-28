@@ -1,7 +1,7 @@
 File uploaded
-<%= h @post_response["embed_code"].inspect %>
+<%= h @post_response["embed_code"].inspect if @post_response %>
 <hr/>
-<%= h @get_response.parsed_response.inspect %>
+<%= h @get_response.parsed_response.inspect if @get_response %>
 <hr/>
 <%= h @put_response.inspect %>
 <hr/>
