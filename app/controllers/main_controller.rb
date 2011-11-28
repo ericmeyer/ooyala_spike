@@ -20,14 +20,45 @@ class OoyalaClient
 end
 class MainController < ApplicationController
   def index
-    t = Time.now
-    expires = Time.local(t.year, t.mon, t.day, t.hour + 1).to_i
     query_params =  {"api_key" => API_KEY, "expires" => expires}
     path = "/v2/assets/E3d3AxMzoe0CZghzVmen5V_SCxsnYmOE/player"
     @ooyala = OoyalaClient.new
     @sig = @ooyala.generate_signature(API_SECRET, "GET", path, query_params, nil)
     
-    
     @response = HTTParty.get("http://api.ooyala.com#{path}", :query => query_params.merge("signature" => @sig))
+  end
+  
+  def create
+    query_params =  {
+      "api_key" => API_KEY,
+      "expires" => expires
+    }
+    body = {
+      "name" => params[:video].original_filename,
+      "file_name" => params[:video].original_filename,
+      "asset_type" => "video",
+      "file_size" => params[:video].size
+    }
+    
+    path = "/v2/assets"
+    @ooyala = OoyalaClient.new
+    @sig = @ooyala.generate_signature(API_SECRET, "POST", path, query_params, body.to_json)
+    
+    logger.info "****************************: #{params[:video].size}"
+    @post_response = HTTParty.post("http://api.ooyala.com#{path}", :query => query_params.merge("signature" => @sig), :body => body.to_json, :options => { headers => { 'ContentType' => 'application/json' } })
+
+    get_upload_url_path = "/v2/assets/#{@post_response["embed_code"]}/uploading_urls"
+    @ooyala = OoyalaClient.new
+    get_sig = @ooyala.generate_signature(API_SECRET, "GET", get_upload_url_path, query_params, nil)
+    @get_response = HTTParty.get("http://api.ooyala.com#{get_upload_url_path}", :query => query_params.merge("signature" => get_sig))
+    
+    upload_url = @get_response.parsed_response.first
+    
+    @put_response = HTTParty.put(upload_url, :query => {}, :body => params[:video].read)
+  end
+  
+  def expires
+    t = Time.now
+    Time.local(t.year, t.mon, t.day, t.hour + 1).to_i
   end
 end

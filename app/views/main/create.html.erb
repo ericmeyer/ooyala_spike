@@ -1,10 +1,10 @@
-Foo
-<%= h @response.inspect %>
+File uploaded
+<%= h @post_response["embed_code"].inspect %>
+<hr/>
+<%= h @get_response.parsed_response.inspect %>
+<hr/>
+<%= h @put_response.inspect %>
+<hr/>
 <%= embed_code = "JvOHYyMzrgUxjrerzfizdKqGb1wGgovY" %>
 
 <script src="http://player.ooyala.com/player.js?browserPlacement=left&height=386&hide=endscreen&deepLinkEmbedCode=<%=embed_code%>&embedCode=<%=embed_code%>&width=570"></script>
-
-<%= form_tag "/main", :multipart => true do |f| %>
-  <%= file_field_tag "video" %>
-  <%= submit_tag "Go!" %>
-<% end -%>
