@@ -22,7 +22,8 @@ end
 class MainController < ApplicationController
   def index
     query_params =  {"api_key" => API_KEY, "expires" => expires}
-    path = "/v2/assets/E3d3AxMzoe0CZghzVmen5V_SCxsnYmOE/player"
+    # path = "/v2/assets/E3d3AxMzoe0CZghzVmen5V_SCxsnYmOE/player"
+    path = "/v2/assets"
     @ooyala = OoyalaClient.new
     @sig = @ooyala.generate_signature(API_SECRET, "GET", path, query_params, nil)
     
@@ -53,8 +54,10 @@ class MainController < ApplicationController
     @get_response = OoyalaClient.get("http://api.ooyala.com#{get_upload_url_path}", :query => query_params.merge("signature" => get_sig))
     
     upload_url = @get_response.parsed_response.first
-    
-    @put_response = OoyalaClient.put(upload_url, :body => params[:video].tempfile)
+    update_status_sig = @ooyala.generate_signature(API_SECRET, "PUT", "/v2/assets/#{@post_response["embed_code"]}/upload_status", query_params, {"status" => "uploaded"}.to_json)
+    @update_status_response = OoyalaClient.put("http://api.ooyala.com/v2/assets/#{@post_response["embed_code"]}/upload_status",
+                                               :query => query_params.merge("signature" => update_status_sig),
+                                               :body => {"status" => "uploaded"}.to_json)
   end
   
   def expires

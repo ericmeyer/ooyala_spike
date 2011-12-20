@@ -1,6 +1,6 @@
 Foo
-<%= h @sig.inspect %>
-<%= embed_code = "VwdG5nMjouMAcEhJMk5RAU7vGdTrNlJF" %>
+<%= h @response["items"].select{|item| item["status"] =="live"}.collect{|item| item["name"] + ": " + item["embed_code"]}.inspect %>
+<%= embed_code = "s1am81Mzq-mcvLIaLYXlZ3QzDEplvk3V" %>
 
 <script src="http://player.ooyala.com/player.js?browserPlacement=left&height=386&hide=endscreen&deepLinkEmbedCode=<%=embed_code%>&embedCode=<%=embed_code%>&width=570"></script>
 
